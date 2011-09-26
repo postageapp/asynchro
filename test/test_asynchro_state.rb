@@ -49,6 +49,7 @@ class TestAsynchroState < Test::Unit::TestCase
 
   def test_implicit_names
     ran = [ ]
+    tester = self
 
     Asynchro::State.new do
       start do
@@ -78,6 +79,20 @@ class TestAsynchroState < Test::Unit::TestCase
 
     assert_eventually(5) do
       assert_equal [ :start, :state1, :state2, :state3, :finish ], ran
+    end
+  end
+
+  def test_configurable_binding
+    result = nil
+    
+    Asynchro::State.new do |map|
+      map.start do
+        result = self.example_method?
+      end
+    end
+    
+    assert_eventually(5) do
+      assert_equal :yes, result
     end
   end
 
@@ -114,5 +129,10 @@ class TestAsynchroState < Test::Unit::TestCase
     assert_eventually(5) do
       assert_equal [ :start, :state1, :state2, :state3, :finish ], ran
     end
+  end
+  
+protected
+  def example_method?
+    :yes
   end
 end

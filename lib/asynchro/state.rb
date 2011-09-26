@@ -22,8 +22,8 @@ class Asynchro::State
   # argument is the state name and should be a Symbol. A block must be
   # provided. If this state is already declared, the given block will be
   # executed after the previous declarations.
-  def declare(state)
-    (@states[state.to_sym] ||= [ ]) << Proc.new
+  def declare(state, &block)
+    (@states[state.to_sym] ||= [ ]) << block
   end
 
   # Returns true if a particular state has been declared, false otherwise.
@@ -41,22 +41,30 @@ class Asynchro::State
       procs = [ lambda { finish! } ] unless (procs)
     end
     
-    procs and procs.each(&:call) or STDERR.puts "WARNING: No state #{state} defined."
+    if (procs)
+      procs.each(&:call)
+    else
+      STDERR.puts "WARNING: No state #{state} defined."
+    end
   end
 
 protected
   # This lets the object instance function as a simple DSL by allowing
   # arbitrary method names to map to various functions.
-  def method_missing(name, &block)
+  def method_missing(name, *args, &block)
     name_s = name.to_s
     
-    case (name)
-    when /\?$/
-      self.declared?(name_s.sub(/\?$/, ''))
-    when /\!$/
-      self.run!(name_s.sub(/\!$/, ''))
+    if (args.empty?)
+      case (name)
+      when /\?$/
+        self.declared?(name_s.sub(/\?$/, ''))
+      when /\!$/
+        self.run!(name_s.sub(/\!$/, ''))
+      else
+        self.declare(name, &block)
+      end
     else
-      self.declare(name, &block)
+      super(name, *args)
     end
   end
 end
