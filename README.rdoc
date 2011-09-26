@@ -1,19 +1,115 @@
 = asynchro
 
-Description goes here.
+This is a set of extensions for Test::Unit::TestCase and any plain Ruby
+classes that will be operating inside the EventMachine framework.
 
-== Contributing to asynchro
- 
-* Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet
-* Check out the issue tracker to make sure someone already hasn't requested it and/or contributed it
-* Fork the project
-* Start a feature/bugfix branch
-* Commit and push until you are happy with your contribution
-* Make sure to add tests for it. This is important so I don't break it in a future version unintentionally.
-* Please try not to mess with the Rakefile, version, or history. If you want to have your own version, or is otherwise necessary, that is fine, but please isolate to its own commit so I can cherry-pick around it.
+The two primary components are:
+
+* A simple tracker that can be used to organize multiple independent blocks 
+  and ensure that they are all completed before moving on.
+* A simple state machine defining tool that can be used to map out the steps
+  required to complete an operation. This is especially useful if the process
+  will vary depending on certain conditions.
+
+== State
+
+To define a state mapping, include the Asynchro::Extensions methods and
+then use the `async_state` method:
+
+    include Asynchro::Extensions
+    ran = [ ]
+    
+    async_state do
+      start do
+        ran << :start
+        state1!
+      end
+
+      state1 do
+        ran << :state1
+        state2!
+      end
+
+      state2 do
+        ran << :state2
+        state3!
+      end
+
+      state3 do
+        ran << :state3
+        finish!
+      end
+  
+      finish do
+        ran << :finish
+      end
+    end
+
+At the end of this, the `ran` array will contain a list of all the states
+which have executed, which in this example will be all of them in order.
+
+The two pre-defined states are `start` and `finish`, where the default
+behavior is to simply finish when started.
+
+To declare a state, simply name it and supply a block to execute when
+in that particular state. Generally the `start` state is defined first
+in order to provide an entry point. The `finish` state is optional.
+
+To transition to another state from within a state, call the name of
+the state with the exclamation at the end, so for `finish` then `finish!`
+would be called. Entering a state that has not been previously defined
+will result in a warning being sent to STDERR for diagnostic purposes.
+
+If this warning is undesirable, declare the state with an empty block.
+
+Be careful to avoid entering states for which there is no exit condition
+or the execution will never successfully complete.
+
+== Tracker
+
+The tracker component is used to process multiple blocks independently, yet
+confirm that they have all completed before moving on. An example is:
+
+    include Asynchro::Extensions
+    success = false
+
+    async_tracker do
+      perform do |done|
+        done.call
+      end
+
+      perform(4) do |done|
+        4.times do
+          done.call
+        end
+      end
+  
+      finish do
+        success = true
+      end
+    end
+
+The `perform` method is used to declare something that must be performed,
+and the `finish` method will be executed once all of the declared blocks
+have executed their callback.
+
+The `perform` method takes a numerical argument that indicates the number of
+times the callback must be called in order to be completed. The default is 1.
+Negative or zero values will result in undefined behavior.
+
+Just as multiple `perform` blocks can be declared, multiple `finish` blocks
+can be supplied. These will execute in order, once, upon completion.
+
+As there is no timeout, the tracker will wait for an indefinite period of
+time if something precludes one or more of the callbacks from being executed.
+This tracker is only suitable for asynchronous code that will always trigger
+a callback of some sort within an acceptable period of time.
+
+== Other Notes
+
+Additional demonstrations of these are included in the test/ directory.
 
 == Copyright
 
-Copyright (c) 2011 Scott Tadman. See LICENSE.txt for
+Copyright (c) 2011 Scott Tadman, The Working Group Inc. See LICENSE.txt for
 further details.
-
