@@ -10,6 +10,16 @@ The two primary components are:
 * A simple state machine defining tool that can be used to map out the steps
   required to complete an operation. This is especially useful if the process
   will vary depending on certain conditions.
+  
+== Installation
+
+The gem should be a good place to start:
+
+    gem install asynchro
+    
+The best approach is to put this in your Gemfile:
+
+    gem 'asynchro'
 
 == State
 
