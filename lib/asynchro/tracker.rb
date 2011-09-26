@@ -1,8 +1,9 @@
 class Asynchro::Tracker
   # Creates a new tracker. If a block is given, this block is called with
   # the new instance as an argument, and the tracker is automatically run.
-  def initialize
+  def initialize(context = self)
     @sequence = 0
+    @context = context
     
     if (block_given?)
       instance_eval(&Proc.new)
@@ -14,14 +15,14 @@ class Asynchro::Tracker
   # called if this object is initialized without a supplied block as in that
   # case, this would have been called already.
   def run!
-    @procs and @procs.each(&:call)
+    @procs and @procs.each { |proc| @context.instance_eval { proc.call } }
   end
   
   # Executes this block when all the actions to be performed have checked in
   # as finsished.
-  def finish
+  def finish(&block)
     @finish ||= [ ]
-    @finish << Proc.new
+    @finish << block
   end
   
   # Performs an action. The supplied block will be called with a callback
@@ -41,7 +42,7 @@ class Asynchro::Tracker
         end
       
         if (@blocks.empty?)
-          @finish and @finish.each(&:call)
+          @finish and @finish.each { |proc| @context.instance_eval { proc.call } }
         end
       end
     }

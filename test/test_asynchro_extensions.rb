@@ -5,12 +5,21 @@ class TestAsynchroExtensions < Test::Unit::TestCase
 
   def test_async_tracker_implicit
     tracker = nil
+    finished = false
     
     async_tracker do
-      tracker = self
+      perform do |callback|
+        tracker = self
+        callback.call
+      end
+      
+      finish do
+        finished = true
+      end
     end
     
     assert_equal Asynchro::Tracker, tracker.class
+    assert_equal true, finished
   end
 
   def test_async_state_explicit
