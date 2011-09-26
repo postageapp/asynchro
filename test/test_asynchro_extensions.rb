@@ -3,14 +3,14 @@ require 'helper'
 class TestAsynchroExtensions < Test::Unit::TestCase
   include Asynchro::Extensions
 
-  def test_async_chain
-    chain = nil
+  def test_async_tracker_implicit
+    tracker = nil
     
-    async_chain do |_chain|
-      chain = _chain
+    async_tracker do
+      tracker = self
     end
     
-    assert_equal Asynchro::Tracker, chain.class
+    assert_equal Asynchro::Tracker, tracker.class
   end
 
   def test_async_state_explicit

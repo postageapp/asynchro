@@ -1,5 +1,5 @@
 module Asynchro::Extensions
-  def async_chain(&block)
+  def async_tracker(&block)
     Asynchro::Tracker.new(&block)
   end
 
