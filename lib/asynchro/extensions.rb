@@ -1,6 +1,6 @@
 module Asynchro::Extensions
   def async_tracker(&block)
-    Asynchro::Tracker.new(self, &block)
+    Asynchro::Tracker.new(&block)
   end
 
   def async_state(&block)

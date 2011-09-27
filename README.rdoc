@@ -29,28 +29,28 @@ then use the `async_state` method:
     include Asynchro::Extensions
     ran = [ ]
     
-    async_state do
-      start do
+    async_state do |state|
+      state.start do
         ran << :start
-        state1!
+        state.state1!
       end
 
-      state1 do
+      state.state1 do
         ran << :state1
-        state2!
+        state.state2!
       end
 
-      state2 do
+      state.state2 do
         ran << :state2
-        state3!
+        state.state3!
       end
 
-      state3 do
+      state.state3 do
         ran << :state3
-        finish!
+        state.finish!
       end
   
-      finish do
+      state.finish do
         ran << :finish
       end
     end
@@ -83,18 +83,18 @@ confirm that they have all completed before moving on. An example is:
     include Asynchro::Extensions
     success = false
 
-    async_tracker do
-      perform do |done|
+    async_tracker do |tracker|
+      tracker.perform do |done|
         done.call
       end
 
-      perform(4) do |done|
+      tracker.perform(4) do |done|
         4.times do
           done.call
         end
       end
   
-      finish do
+      tracker.finish do
         success = true
       end
     end
