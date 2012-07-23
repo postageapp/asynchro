@@ -46,7 +46,7 @@ module Asynchro::TestHelper
   def assert_callback(time = nil, message = nil)
     called_back = false
     
-    Pigeonrocket.execute_in_main_thread do
+    EventMachine.next_tick do
       yield(lambda { called_back = true })
     end
     
@@ -68,7 +68,7 @@ module Asynchro::TestHelper
   def assert_callback_times(count = 1, time = nil, message = nil)
     called_back = 0
     
-    Pigeonrocket.execute_in_main_thread do
+    EventMachine.next_tick do
       yield(lambda { called_back += 1 })
     end
     

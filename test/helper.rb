@@ -18,4 +18,14 @@ require 'asynchro'
 
 class Test::Unit::TestCase
   include Asynchro::TestHelper
+  
+  def assert_exception(type)
+    begin
+      yield
+    rescue => e
+      assert_equal type, e.class
+    else
+      assert_equal type, nil
+    end
+  end
 end

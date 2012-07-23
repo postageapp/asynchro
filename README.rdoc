@@ -1,7 +1,7 @@
 = asynchro
 
-This is a set of extensions for Test::Unit::TestCase and any plain Ruby
-classes that will be operating inside the EventMachine framework.
+This is a set of extensions for event-driven, asynchronous Ruby applications
+and improved support for testing within the EventMachine engine.
 
 The two primary components are:
 
@@ -13,15 +13,15 @@ The two primary components are:
   
 == Installation
 
-The gem should be a good place to start:
+Using the gem installation tool is the easiest way to get started:
 
     gem install asynchro
     
-The best approach is to put this in your Gemfile:
+If you're using it within a bundler managed project, add to your Gemfile:
 
     gem 'asynchro'
 
-== State
+== Using Asynchro::State
 
 To define a state mapping, include the Asynchro::Extensions methods and
 then use the `async_state` method:
@@ -75,21 +75,35 @@ If this warning is undesirable, declare the state with an empty block.
 Be careful to avoid entering states for which there is no exit condition
 or the execution will never successfully complete.
 
-== Tracker
+== Using Asynchro::Tracker
 
 The tracker component is used to process multiple blocks independently, yet
-confirm that they have all completed before moving on. An example is:
+confirm that they have all completed before moving on. This control structure
+helps to avoid duplicating logic in callback methods.
 
+A simple example is:
+
+    require 'rubygems'
+    gem 'asynchro'
+    require 'asynchro'
+    
     include Asynchro::Extensions
+    
+    def example_async_call
+      yield
+    end
+    
     success = false
 
     async_tracker do |tracker|
       tracker.perform do |done|
-        done.call
+        example_async_call do
+          done.call
+        end
       end
 
       tracker.perform(4) do |done|
-        4.times do
+        example_async_call do
           done.call
         end
       end
@@ -98,6 +112,13 @@ confirm that they have all completed before moving on. An example is:
         success = true
       end
     end
+    
+The main `async_tracker` call will appear to block until all of the actions
+defined by `perform` are completed. More specifically, the `done` trigger
+must be called in order to carry forward. Generally this trigger is passed
+through to the final block that must be executed before the operation is
+completed. In this example the trigger is scoped such that the inner block
+has access to it.
 
 The `perform` method is used to declare something that must be performed,
 and the `finish` method will be executed once all of the declared blocks
@@ -107,13 +128,20 @@ The `perform` method takes a numerical argument that indicates the number of
 times the callback must be called in order to be completed. The default is 1.
 Negative or zero values will result in undefined behavior.
 
+It is possible to declare `perform` blocks at any time prior to the completion
+of the last block. This enables additional processing to be performed only
+if certain requirements are met, or for actions to be chained together as
+required.
+
 Just as multiple `perform` blocks can be declared, multiple `finish` blocks
-can be supplied. These will execute in order, once, upon completion.
+can be supplied. These will execute in the order they are defined, once, upon
+completion of all the prerequisite blocks.
 
 As there is no timeout, the tracker will wait for an indefinite period of
 time if something precludes one or more of the callbacks from being executed.
-This tracker is only suitable for asynchronous code that will always trigger
-a callback of some sort within an acceptable period of time.
+This tracker is only suitable for asynchronous code that is designed such that
+it will always trigger a callback of some sort within an acceptable period of
+time.
 
 == Other Notes
 
@@ -121,5 +149,5 @@ Additional demonstrations of these are included in the test/ directory.
 
 == Copyright
 
-Copyright (c) 2011 Scott Tadman, The Working Group Inc. See LICENSE.txt for
-further details.
+Copyright (c) 2011-2012 Scott Tadman, The Working Group Inc.
+See LICENSE.txt for further details.

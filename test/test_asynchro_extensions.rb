@@ -43,4 +43,20 @@ class TestAsynchroExtensions < Test::Unit::TestCase
     
     assert_equal Asynchro::State, state.class
   end
+  
+  def test_yield_to
+    ran = false
+    subfiber = nil
+    
+    yield_to do |f|
+      ran = true
+      sleep(10)
+    end
+    
+    assert_equal ran, true
+    
+    assert_exception LocalJumpError do
+      yield_to
+    end
+  end
 end

@@ -3,6 +3,7 @@ coverage
 rdoc
 doc
 pkg
+scratch
 
 # Jeweler / Gem
 *.gem

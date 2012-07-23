@@ -1,3 +1,5 @@
+require 'fiber'
+
 module Asynchro
   autoload(:Extensions, 'asynchro/extensions')
   autoload(:State, 'asynchro/state')

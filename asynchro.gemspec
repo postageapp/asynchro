@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "asynchro"
-  s.version = "0.1.5"
+  s.version = "0.4.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Scott Tadman"]
-  s.date = "2011-09-27"
+  s.date = "2012-07-23"
   s.description = "Provides a number of tools to help make developing and testing asynchronous applications more manageable."
   s.email = "github@tadman.ca"
   s.extra_rdoc_files = [
@@ -39,7 +39,7 @@ Gem::Specification.new do |s|
   s.homepage = "http://github.com/tadman/asynchro"
   s.licenses = ["MIT"]
   s.require_paths = ["lib"]
-  s.rubygems_version = "1.8.10"
+  s.rubygems_version = "1.8.24"
   s.summary = "Ruby EventMachine Async Programming Toolkit"
 
   if s.respond_to? :specification_version then
